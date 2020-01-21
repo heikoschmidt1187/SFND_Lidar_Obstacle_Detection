@@ -25,7 +25,7 @@ pcl::visualization::PCLVisualizer::Ptr initScene(Box window, int zoom)
 pcl::PointCloud<pcl::PointXYZ>::Ptr CreateData(std::vector<std::vector<float>> points)
 {
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>());
-  	
+
   	for(int i = 0; i < points.size(); i++)
   	{
   		pcl::PointXYZ point;
@@ -75,13 +75,46 @@ void render2DTree(Node* node, pcl::visualization::PCLVisualizer::Ptr& viewer, Bo
 
 }
 
+void proximity(size_t index, std::vector<bool> &processedPoints, const std::vector<std::vector<float>>& points, KdTree* tree, float distanceTol, std::vector<int> &cluster)
+{
+	// mark point as processed
+	processedPoints.at(index) = true;
+
+	// add point to cluster
+	cluster.push_back(index);
+
+	// search nearby points
+	std::vector<int> nearby = tree->search(points.at(index), distanceTol);
+
+	// iterate through neighbours
+	for(int id : nearby) {
+		if(processedPoints.at(id) == false)
+			proximity(id, processedPoints, points, tree, distanceTol, cluster);
+	}
+}
+
 std::vector<std::vector<int>> euclideanCluster(const std::vector<std::vector<float>>& points, KdTree* tree, float distanceTol)
 {
 
 	// TODO: Fill out this function to return list of indices for each cluster
 
 	std::vector<std::vector<int>> clusters;
- 
+	std::vector<bool> processedPoints(points.size(), false);
+
+	// iterate through each point
+	for(size_t index = 0; index < points.size(); ++index) {
+
+		// check if point already has been processed
+		if(processedPoints.at(index) == true)
+			continue;
+
+		// create cluster
+		std::vector<int> cluster;
+		proximity(index, processedPoints, points, tree, distanceTol, cluster);
+
+		clusters.push_back(std::move(cluster));
+	}
+
 	return clusters;
 
 }
@@ -105,13 +138,13 @@ int main ()
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = CreateData(points);
 
 	KdTree* tree = new KdTree;
-  
-    for (int i=0; i<points.size(); i++) 
-    	tree->insert(points[i],i); 
+
+    for (int i=0; i<points.size(); i++)
+    	tree->insert(points[i],i);
 
   	int it = 0;
   	render2DTree(tree->root,viewer,window, it);
-  
+
   	std::cout << "Test Search" << std::endl;
   	std::vector<int> nearby = tree->search({-6,7},3.0);
   	for(int index : nearby)
@@ -140,10 +173,10 @@ int main ()
   	}
   	if(clusters.size()==0)
   		renderPointCloud(viewer,cloud,"data");
-	
+
   	while (!viewer->wasStopped ())
   	{
   	  viewer->spinOnce ();
   	}
-  	
+
 }
