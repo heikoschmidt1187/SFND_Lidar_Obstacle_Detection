@@ -327,7 +327,6 @@ void ProcessPointClouds<PointT>::proximity(size_t index, std::vector<bool> &proc
 template<typename PointT>
 std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::euclideanCluster(typename pcl::PointCloud<PointT>::Ptr cloud, KdTree3D* tree, float distanceTol, int minSize, int maxSize)
 {
-  /*
 	// TODO: Fill out this function to return list of indices for each cluster
 	std::vector<typename pcl::PointCloud<PointT>::Ptr> clusters;
 	std::vector<bool> processedPoints(cloud->points.size(), false);
@@ -343,7 +342,7 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::e
       typename pcl::PointCloud<PointT>::Ptr cluster (new pcl::PointCloud<PointT>);
   		proximity(index, processedPoints, cloud, tree, distanceTol, clusterIdx);
 
-      if((clusterIdx.size() >= minSize) && (clusterIdx.size() <= maxSize)) {
+      if(true /*(clusterIdx.size() >= minSize) && (clusterIdx.size() <= maxSize)*/) {
         for(int i = 0; i < clusterIdx.size(); ++i) {
           PointT point;
           point = cloud->points.at(clusterIdx.at(i));
@@ -361,39 +360,4 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::e
 	}
 
 	return clusters;
-  */
-
-
-
-  std::vector<typename pcl::PointCloud<PointT>::Ptr> clusters;
-std::vector<bool> processed(cloud->points.size(), false);
-for(size_t idx = 0; idx < cloud->points.size(); ++idx)
-{
-  if(processed[idx] == false)
-  {
-    std::vector<int> cluster_idx;
-          typename pcl::PointCloud<PointT>::Ptr cloudCluster (new pcl::PointCloud<PointT>);
-			proximity(idx, processed, cloud, tree, distanceTol, cluster_idx);
-          if(cluster_idx.size() >= minSize && cluster_idx.size() <= maxSize)
-          {
-              for(int i = 0; i < cluster_idx.size(); i++)
-              {
-                  PointT point;
-                  point = cloud->points[cluster_idx[i]];
-                  cloudCluster->points.push_back(point);
-              }
-              cloudCluster->width = cloudCluster->points.size();
-              cloudCluster->height = 1;
-              clusters.push_back(cloudCluster);
-          }
-          else{
-              for(int i = 1; i < cluster_idx.size(); i++)
-              {
-                  processed[cluster_idx[i]] = false;
-              }
-          }
-  }
-}
-return clusters;
-
 }

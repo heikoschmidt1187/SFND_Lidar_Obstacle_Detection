@@ -95,7 +95,7 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
   for(int i = 0; i < segmentCloud.first->points.size(); ++i)
     tree->insert(segmentCloud.first->points[i], i);
 
-  std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessorI->euclideanCluster(segmentCloud.first, tree, 0.5, 30, 250);
+  std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessorI->euclideanCluster(segmentCloud.first, tree, 1, 30, 250);
 
   int clusterId = 0;
   std::vector<Color> colors = {Color(1,0,0), Color(0,1,0), Color(0,0,1)};
